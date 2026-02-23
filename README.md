@@ -46,8 +46,5 @@ This is a **multi-label classification problem** evaluated using ROC-AUC.
 - BiLSTM achieved slightly higher validation AUC (+0.0028).
 - Validation AUC peaked at Epoch 1 for both models.
 - Slight performance drop in Epoch 2 suggests early stopping would improve generalization.
-
-
-- Fine-tune DistilBERT for improved contextual understanding.
 - Compare inference latency across models.
-- Deploy best-performing model via FastAPI + frontend interface.
+
