@@ -24,8 +24,6 @@ This is a **multi-label classification problem** evaluated using ROC-AUC.
 
 ---
 
-## Day 1 – RNN Baseline Models (BiGRU vs BiLSTM)
-
 ### Experimental Setup
 - Sequence length: 200
 - Vocabulary size: 100,000
@@ -34,7 +32,7 @@ This is a **multi-label classification problem** evaluated using ROC-AUC.
 - Loss: Binary Crossentropy
 - Metric: Multi-label AUC
 
-### Results
+## Day 1 – RNN Baseline Models (BiGRU vs BiLSTM)
 
 | Model   | Train Time (2 epochs) | Best Validation AUC  | 
 |---------|-----------------------|----------------------|
@@ -48,3 +46,12 @@ This is a **multi-label classification problem** evaluated using ROC-AUC.
 - Slight performance drop in Epoch 2 suggests early stopping would improve generalization.
 - Compare inference latency across models.
 
+## Day 2 – Optimized RNN Models (BiGRU & BiLSTM)
+- Added EarlyStopping based on validation AUC to prevent overfitting.
+- Added ModelCheckpoint to save the best-performing model automatically.
+- Expanded evaluation metrics from only AUC to AUC + Precision + Recall.
+- Implemented a separate test evaluation pipeline with manual metric computation.
+- Introduced threshold tuning (0.3 instead of 0.5) for multi-label classification.
+- Simplified the dense layer architecture by removing the extra Dense(256) layer.
+- Compared models using additional metrics to analyze the precision–recall trade-off.
+- Made the training pipeline deployment-ready by saving best_model.keras.
