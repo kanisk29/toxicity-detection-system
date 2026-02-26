@@ -92,17 +92,6 @@ Enhance semantic representation by replacing randomly initialized embeddings wit
 
 ---
 
-## Model Update
-
-```python
-Embedding(
-    input_dim=len(vocab),
-    output_dim=100,
-    weights=[embedding_matrix],
-    mask_zero=True,
-    trainable=True/False
-)
-```
 ## Key Observations
 
 - Pretrained embeddings improved semantic initialization.
