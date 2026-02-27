@@ -2,7 +2,7 @@
 
 End-to-end multi-label toxicity detection system.
 The project compares traditional deep learning architectures 
-(BiGRU, BiLSTM, CNN) with Transformer-based models (DistilBERT) 
+(BiGRU, BiLSTM, CNN) with Transformer-based models (DistilBERT)
 and deploys the best-performing model.
 
 ---
