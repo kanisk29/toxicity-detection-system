@@ -30,16 +30,13 @@ This is a **multi-label classification problem** evaluated using ROC-AUC.
 - Loss: Binary Crossentropy
 - Metric: Multi-label AUC
   
-| Model                         | Embedding Type        | Train Time (≈3 epochs) | Best Validation AUC |
-|--------------------------------|------------------------|------------------------|---------------------|
-| BiGRU (Day 1 Baseline)        | Random Init            | 107.6 sec (2 ep)       | 0.9633              |
-| BiLSTM (Day 1 Baseline)       | Random Init            | 108.2 sec (2 ep)       | 0.9661              |
-| BiGRU (GloVe)                 | Trainable = True       | 172.7 sec              | **0.9732**          |
-| BiGRU (GloVe)                 | Trainable = False      | 210.0 sec              | 0.9720              |
-| BiLSTM (GloVe)                | Trainable = True       | 162.5 sec              | **0.9717**          |
-| BiLSTM (GloVe)                | Trainable = False      | 254.7 sec              | 0.9716              |
-| CNN                           | —                      | —                      | —                   |
-| DistilBERT                    | —                      | —                      | —                   |
+| Model                       | Class Imbalance Handled | Best Val AUC | Best Val Precision | Best Val Recall | Macro F1 (Test) | Train Time |
+|-----------------------------|---------------|--------------|--------------------|------------------|------------------|------------|
+| BiGRU (Day 3 – GloVe)      |  No         | 0.9732       | 0.8183             | 0.7468           | —                | 172 sec    |
+| BiLSTM (Day 3 – GloVe)     |  No         | 0.9717       | 0.8552             | 0.7216           | —                | 162 sec    |
+| **BiGRU (Day 4 – Weighted)**  |  Yes        | **0.9811**   | 0.4907             | 0.9355           | **0.4393**       | 201 sec    |
+| **BiLSTM (Day 4 – Weighted)** |  Yes        | 0.9808       | 0.4155             | 0.9491           | 0.3695           | 152 sec    |
+| **CNN (Day 4 – Weighted)**    |  Yes        | 0.9774       | 0.4147             | **0.9717**       | 0.3596           | **69 sec** |
 
 ## Refer to this table for improvements to the model. 
 
@@ -105,3 +102,84 @@ Enhance semantic representation by replacing randomly initialized embeddings wit
 - GRU remains slightly faster than LSTM.
 
 #### Finally, decided to move on with the model using ```trainable = True``` since it gave much better results as shown in the table. 
+
+# Day 4 – Class Imbalance Handling and CNN Architecture
+
+Day 4 focuses on addressing severe class imbalance in the dataset and expanding the architecture comparison by introducing a CNN-based model alongside RNN variants.
+
+---
+
+## Class Imbalance Analysis
+
+The dataset is highly imbalanced across toxicity categories.  
+Rare classes such as `threat`, `severe_toxic`, and `identity_hate` occur significantly less frequently than `toxic` or non-toxic samples.
+
+Computed positive class weights:
+
+- toxic → 5.21  
+- severe_toxic → 50.02  
+- obscene → 9.44  
+- threat → 166.91  
+- insult → 10.12  
+- identity_hate → 56.78  
+
+The extreme weight for `threat` confirms severe imbalance.  
+Without correction, the model favors the dominant negative class, leading to poor minority recall despite high AUC.
+
+---
+
+## Weighted Binary Crossentropy
+
+To mitigate imbalance, a custom weighted binary crossentropy loss was implemented:
+
+Weighted BCE =  
+− ( w * y_true * log(y_pred) + (1 − y_true) * log(1 − y_pred) )
+
+Where:
+
+- `w` represents class-specific positive weights  
+- Minority labels receive stronger gradient updates  
+- False negatives are penalized more heavily  
+
+This modification shifts optimization toward recall improvement for rare categories.
+
+---
+
+## Threshold Adjustment
+
+The prediction threshold was reduced from 0.5 to 0.3.
+
+Effects observed:
+
+- Substantial recall increase  
+- Lower precision due to more aggressive predictions  
+- Improved Macro F1 compared to previous versions  
+
+This adjustment better aligns the system with safety-focused deployment scenarios.
+
+---
+
+## CNN Architecture Introduction
+
+In addition to BiGRU and BiLSTM models, a CNN-based architecture was introduced.
+
+Architecture:
+
+- Trainable GloVe embedding layer  
+- Conv1D (64 filters, kernel size = 5)  
+- Conv1D (128 filters, kernel size = 5)  
+- GlobalMaxPooling1D  
+- Dense layers  
+- Sigmoid output (6 labels)  
+
+The CNN captures local n-gram patterns efficiently and trains significantly faster than RNN variants, providing a strong computational baseline.
+
+---
+
+## Key Observations
+
+- Weighted loss significantly increased recall across all models.
+- GRU achieved the best overall balance (highest Macro F1).
+- CNN trained nearly 3× faster than RNNs but slightly underperformed in Macro F1.
+- Precision decreased due to aggressive minority detection, which is expected under weighted optimization.
+- AUC improved beyond 0.98, indicating strong ranking capability despite imbalance.
