@@ -1,0 +1,6 @@
+tensorflow>=2.12
+numpy>=1.23
+pandas>=1.5
+scikit-learn>=1.2
+gensim>=4.3
+kaggle>=1.5
