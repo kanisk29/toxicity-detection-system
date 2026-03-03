@@ -183,3 +183,76 @@ The CNN captures local n-gram patterns efficiently and trains significantly fast
 - CNN trained nearly 3× faster than RNNs but slightly underperformed in Macro F1.
 - Precision decreased due to aggressive minority detection, which is expected under weighted optimization.
 - AUC improved beyond 0.98, indicating strong ranking capability despite imbalance.
+
+## Day 5 – Threshold Optimization & Frontend Integration  
+
+Day 5 represents the transition from model experimentation to a deployment-oriented system.  
+This phase improves prediction calibration and introduces a user-facing interface for real-time toxicity detection.
+
+---
+
+## Threshold Optimization
+
+To improve real-world classification performance, decision thresholds were optimized using validation data.
+
+### What Was Implemented
+
+- Built an efficient inference pipeline to collect validation predictions in a single forward pass.
+- Performed systematic threshold sweeping from 0.1 to 1.0.
+- Computed Macro F1 score at each threshold.
+- Selected the threshold that maximized validation Macro F1.
+- Assigned model-specific optimal thresholds for BiGRU, BiLSTM, and CNN architectures.
+
+### Why It Matters
+
+Multi-label toxicity detection is highly imbalanced.  
+Using a fixed threshold can:
+
+- Reduce minority recall  
+- Distort Macro F1  
+- Create unstable deployment behavior  
+
+Validation-based calibration ensures:
+
+- Better precision–recall balance  
+- Improved Macro F1  
+- Fair test evaluation (no data leakage)  
+- Deployment-ready decision boundaries  
+
+---
+
+## Frontend Integration
+
+A modern frontend interface was developed to enable real-time interaction with the trained model.
+
+### Technology Stack
+
+- React  
+- TypeScript  
+- Vite  
+- TailwindCSS  
+
+### Features
+
+- User input field for comment text  
+- Trigger-based prediction request to backend API  
+- Dynamic display of predicted toxicity labels  
+- Clean and responsive interface  
+- Structured for integration with Flask/FastAPI backend  
+
+The frontend enables the system to function as a complete end-to-end toxicity detection application rather than a notebook-only experiment.
+
+---
+
+## System Status After Day 5
+
+The project now includes:
+
+- Pretrained GloVe embeddings  
+- Class imbalance handling via weighted binary crossentropy  
+- RNN (BiGRU, BiLSTM) and CNN architecture comparison  
+- Early stopping and checkpointing  
+- Validation-based threshold optimization  
+- Interactive frontend for real-world usage  
+
+Day 5 marks the shift from research experimentation to a calibrated, full-stack, deployment-ready toxicity detection system.
