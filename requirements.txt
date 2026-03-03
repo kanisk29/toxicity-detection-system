@@ -1,5 +1,5 @@
 tensorflow>=2.11
-numpy>=1.23
+numpy>=1.2
 pandas>=1.5
 scikit-learn>=1.2
 gensim>=4.3
