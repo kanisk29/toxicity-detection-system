@@ -32,15 +32,15 @@ This is a **multi-label classification problem** evaluated using ROC-AUC.
   
 | Model                       | Class Imbalance Handled | Best Val AUC | Best Val Precision | Best Val Recall | Macro F1 (Test) | Train Time |
 |-----------------------------|---------------|--------------|--------------------|------------------|------------------|------------|
-| BiGRU (Day 3 – GloVe)      |  No         | 0.9732       | 0.8183             | 0.7468           | —                | 172 sec    |
-| BiLSTM (Day 3 – GloVe)     |  No         | 0.9717       | 0.8552             | 0.7216           | —                | 162 sec    |
-| **BiGRU (Day 4 – Weighted)**  |  Yes        | **0.9811**   | 0.4907             | 0.9355           | **0.4393**       | 201 sec    |
-| **BiLSTM (Day 4 – Weighted)** |  Yes        | 0.9808       | 0.4155             | 0.9491           | 0.3695           | 152 sec    |
-| **CNN (Day 4 – Weighted)**    |  Yes        | 0.9774       | 0.4147             | **0.9717**       | 0.3596           | **69 sec** |
+| BiGRU (GloVe)      |  No         | 0.9732       | 0.8183             | 0.7468           | —                | 172 sec    |
+| BiLSTM (GloVe)     |  No         | 0.9717       | 0.8552             | 0.7216           | —                | 162 sec    |
+| **BiGRU (Weighted)**  |  Yes        | **0.9811**   | 0.4907             | 0.9355           | **0.4393**       | 201 sec    |
+| **BiLSTM (Weighted)** |  Yes        | 0.9808       | 0.4155             | 0.9491           | 0.3695           | 152 sec    |
+| **CNN (Weighted)**    |  Yes        | 0.9774       | 0.4147             | **0.9717**       | 0.3596           | **69 sec** |
 
 ## Refer to this table for improvements to the model. 
 
-# Day 1 – RNN Baseline Models (BiGRU vs BiLSTM)
+# RNN Baseline Models (BiGRU vs BiLSTM)
 
 ### Observations
 - Both models converged within 2 epochs.
@@ -62,7 +62,7 @@ Day 2 focused on improving generalization, evaluation depth, and deployment read
 - Compared models across multiple metrics to analyze precision vs recall behavior.
 - Made the training workflow deployment-ready by standardizing model saving and evaluation.
   
-# Day 3 – GloVe Integration & Embedding Experiments
+# GloVe Integration & Embedding Experiments
 
 ## Objective
 
@@ -103,7 +103,7 @@ Enhance semantic representation by replacing randomly initialized embeddings wit
 
 #### Finally, decided to move on with the model using ```trainable = True``` since it gave much better results as shown in the table. 
 
-# Day 4 – Class Imbalance Handling and CNN Architecture
+# Class Imbalance Handling and CNN Architecture
 
 Day 4 focuses on addressing severe class imbalance in the dataset and expanding the architecture comparison by introducing a CNN-based model alongside RNN variants.
 
@@ -184,7 +184,7 @@ The CNN captures local n-gram patterns efficiently and trains significantly fast
 - Precision decreased due to aggressive minority detection, which is expected under weighted optimization.
 - AUC improved beyond 0.98, indicating strong ranking capability despite imbalance.
 
-## Day 5 – Threshold Optimization & Frontend Integration  
+## Threshold Optimization & Frontend Integration  
 
 Day 5 represents the transition from model experimentation to a deployment-oriented system.  
 This phase improves prediction calibration and introduces a user-facing interface for real-time toxicity detection.
