@@ -226,3 +226,117 @@ Validation-based calibration ensures:
 - RNN (BiGRU, BiLSTM) and CNN architecture comparison  
 - Early stopping and checkpointing  
 - Validation-based threshold optimization  
+
+## Transformer-Based Model (BERT Fine-Tuning)
+
+This phase extends the project by incorporating a pretrained Transformer model to compare against earlier RNN and CNN architectures.
+
+---
+
+### Objective
+
+Leverage contextual embeddings from **BERT (bert-base-uncased)** to improve multi-label toxicity classification, especially for nuanced and context-dependent language.
+
+---
+
+### Dataset Pipeline (HuggingFace Datasets)
+
+- Converted Pandas DataFrame into `Dataset` format.
+- Performed a **3-way split**:
+  - Train (72%)
+  - Validation (8%)
+  - Test (20%)
+- Created a unified `DatasetDict` for seamless training.
+
+#### Label Construction
+
+- Combined the 6 toxicity columns into a single `labels` vector.
+- Ensures compatibility with multi-label classification setup.
+
+---
+
+### Tokenization
+
+- Used `AutoTokenizer` with:
+  - Truncation enabled
+  - Dynamic padding via `DataCollatorWithPadding`
+- Removed raw text and individual label columns after tokenization.
+
+---
+
+### Model Configuration
+
+- Model: `bert-base-uncased`
+- Head: Sequence classification
+- Setup:
+  - `num_labels = 6`
+  - `problem_type = "multi_label_classification"`
+
+#### Key Detail
+
+- Uses **sigmoid activation internally (not softmax)**
+- Each label is predicted independently
+
+---
+
+### Training Setup
+
+- Optimizer: AdamW  
+- Learning rate: 2e-5  
+- Weight decay: 0.01  
+- Batch size: 16  
+- Epochs: 3  
+
+#### Strategies
+
+- Evaluation: Every epoch  
+- Checkpointing: Every epoch  
+- Best model selected based on **Macro F1**
+
+---
+
+### Threshold Optimization (Transformer)
+
+Unlike earlier models where a fixed threshold (e.g., 0.3) was used, BERT introduces **per-class threshold tuning**.
+
+#### Method
+
+- Convert logits → probabilities using sigmoid:
+  p = 1 / (1 + exp(-logits))
+
+
+- For each label:
+- Sweep thresholds from 0.1 to 0.9
+- Select threshold that maximizes F1 score
+
+#### Why This Matters
+
+- Each toxicity class has different imbalance levels  
+- A single threshold is suboptimal  
+- Per-class calibration improves Macro F1 and deployment reliability  
+
+---
+
+### Metric Computation
+
+- Predictions are generated using optimized thresholds
+- Evaluation metric:
+- **Macro F1 Score**
+
+---
+
+### Key Takeaways
+
+- Transformer models capture **contextual semantics** better than RNN/CNN  
+- No need for manual embeddings (e.g., GloVe)  
+- Slightly higher training cost but better generalization  
+- Threshold tuning remains critical even with powerful models  
+
+---
+
+### Current System Status
+
+- Traditional models: BiGRU, BiLSTM, CNN (with GloVe + class weighting)  
+- Transformer model: BERT fine-tuned for multi-label classification  
+- Unified evaluation: Macro F1 + threshold optimization  
+- Ready for final comparison and deployment selection  
