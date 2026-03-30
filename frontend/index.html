@@ -1,41 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Toxicity Classifier</title>
+  <meta charset="UTF-8">
+  <title>AI Toxic Classifier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="app">
+<canvas id="bg"></canvas>
 
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <h2>History</h2>
-    <div id="history"></div>
-  </div>
+<div class="glass">
+  <h1>AI Toxicity Detector</h1>
 
-  <!-- Main -->
-  <div class="main">
-    <div class="topbar">
-      <h1>Toxicity Classifier</h1>
-      <button id="themeToggle">🌙</button>
-    </div>
+  <textarea id="inputText" placeholder="Type a comment..."></textarea>
 
-    <textarea id="text" placeholder="Enter text..."></textarea>
+  <button id="analyzeBtn">Analyze</button>
 
-    <div class="controls">
-      <select id="model">
-        <option value="gru">GRU</option>
-        <option value="lstm">LSTM</option>
-        <option value="cnn">CNN</option>
-      </select>
-      <button onclick="predict()">Analyze</button>
-    </div>
+  <div id="loader" class="hidden">Analyzing...</div>
 
-    <div id="result" class="result"></div>
-  </div>
-
+  <div id="results"></div>
 </div>
+
 <script src="script.js"></script>
 </body>
 </html>
