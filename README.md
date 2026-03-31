@@ -83,7 +83,7 @@ POST /predict
   "text": "Your input sentence"
 }
 ```
-### Response
+### Response [Example]
 {
   "toxic": 0.82,
   "severe_toxic": 0.12,
