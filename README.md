@@ -61,7 +61,7 @@ https://toxicity-detector-by-kanisk.netlify.app
 
 ## System Architecture
 
-Frontend (Netlify)  
+Frontend 
 → Sends input text via API request  
 → HuggingFace Space backend processes request  
 → Tokenization using RoBERTa tokenizer  
