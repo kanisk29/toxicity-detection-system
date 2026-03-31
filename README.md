@@ -32,7 +32,7 @@ https://toxicity-detector-by-kanisk.netlify.app
 
 ---
 
-## Final Performance (Test Set)
+## Final Performance 
 
 - Baseline Macro F1: 0.4397  
 - Optimized Macro F1: 0.6947  
