@@ -1,342 +1,160 @@
 # Toxicity Detection System
 
-End-to-end multi-label toxicity detection system.
-The project compares traditional deep learning architectures 
-(BiGRU, BiLSTM, CNN) with Transformer-based models (DistilBERT)
-and deploys the best-performing model.
+End-to-end multi-label toxicity classification system with real-time deployment.
+
+This project compares traditional deep learning architectures (RNN, CNN) with Transformer-based models and deploys the best-performing model in a production-ready pipeline.
 
 ---
+
+## Live Demo
+
+https://toxicity-detector-by-kanisk.netlify.app  
+
+## Final Deployed Model
+
+- Model: RoBERTa (roberta-base)
+- Task: Multi-label classification (6 labels)
+- Loss Function: BCEWithLogitsLoss (with class weighting)
+- Optimization: Per-label threshold tuning
+
+---
+
+## Final Performance (Test Set)
+
+- Baseline Macro F1: 0.661  
+- Optimized Macro F1: 0.6947  
+
+### Per-label Performance Improvement
+
+| Label           | Before | After |
+|----------------|--------|------|
+| toxic          | 0.816 |0.835 |
+| severe_toxic   | 0.488 | 0.552 |
+| obscene        | 0.817 | 0.840 |
+| threat         | 0.563 | 0.623 |
+| insult         | 0.750 | 0.777 |
+| identity_hate  | 0.533 | 0.539 |
+
+---
+
+## Model Comparison (Macro F1)
+
+| Model                  | Imbalance Handling | Macro F1 (Test) | Notes |
+|------------------------|-------------------|------------------|------|
+| BiGRU (GloVe)          | No                | —                | Poor minority recall |
+| BiLSTM (GloVe)         | No                | —                | Slight precision advantage |
+| BiGRU (Weighted)       | Yes               | 0.4393           | Strongest RNN baseline |
+| BiLSTM (Weighted)      | Yes               | 0.3695           | High recall, low precision |
+| CNN (Weighted)         | Yes               | 0.3596           | Fastest model |
+| RoBERTa (Final Model)  | Yes               | 0.6947           | Best overall performance |
+
+---
+
+## Key Insights
+
+- Transformer-based modeling significantly outperforms all RNN and CNN baselines.
+- Class imbalance handling is essential for multi-label toxicity detection.
+- Fixed thresholds lead to suboptimal performance; per-label calibration improves Macro F1.
+- Traditional models provide useful baselines but fail to capture contextual semantics as effectively as Transformers.
+
+---
+
+## System Architecture
+
+Frontend (Netlify)  
+→ Sends input text via API request  
+→ HuggingFace Space backend processes request  
+→ Tokenization using RoBERTa tokenizer  
+→ Model inference  
+→ Per-label thresholding  
+→ Returns probabilities and binary predictions  
+
+---
+
+## API Usage
+
+### Endpoint
+
+POST /predict
+
+### Request
+
+```json
+{
+  "text": "Your input sentence"
+}
+```
+### Response
+{
+  "toxic": 0.82,
+  "severe_toxic": 0.12,
+  "obscene": 0.76,
+  "threat": 0.05,
+  "insult": 0.64,
+  "identity_hate": 0.02
+}
 
 ## Problem Statement
 
-Given a user comment, classify it into one or more toxicity categories:
+Given a user comment, classify it into one or more of the following categories:
 
-- toxic
-- severe_toxic
-- obscene
-- threat
-- insult
-- identity_hate
+- toxic  
+- severe_toxic  
+- obscene  
+- threat  
+- insult  
+- identity_hate  
 
-This is a **multi-label classification problem** evaluated using ROC-AUC.
-
----
-
-### Experimental Setup
-- Sequence length: 200
-- Vocabulary size: 100,000
-- Embedding dimension: 128
-- Batch size: 64
-- Loss: Binary Crossentropy
-- Metric: Multi-label AUC
-  
-| Model                       | Class Imbalance Handled | Best Val AUC | Best Val Precision | Best Val Recall | Macro F1 (Test) | Train Time |
-|-----------------------------|---------------|--------------|--------------------|------------------|------------------|------------|
-| BiGRU (GloVe)      |  No         | 0.9732       | 0.8183             | 0.7468           | —                | 172 sec    |
-| BiLSTM (GloVe)     |  No         | 0.9717       | 0.8552             | 0.7216           | —                | 162 sec    |
-| **BiGRU (Weighted)**  |  Yes        | **0.9811**   | 0.4907             | 0.9355           | **0.4393**       | 201 sec    |
-| **BiLSTM (Weighted)** |  Yes        | 0.9808       | 0.4155             | 0.9491           | 0.3695           | 152 sec    |
-| **CNN (Weighted)**    |  Yes        | 0.9774       | 0.4147             | **0.9717**       | 0.3596           | **69 sec** |
-
-## Refer to this table for improvements to the model. 
-
-# RNN Baseline Models (BiGRU vs BiLSTM)
-
-### Observations
-- Both models converged within 2 epochs.
-- BiLSTM achieved slightly higher validation AUC (+0.0028).
-- Validation AUC peaked at Epoch 1 for both models.
-- Slight performance drop in Epoch 2 suggests early stopping would improve generalization.
-- Compare inference latency across models.
-
-# Day 2 – Optimized RNN Models (BiGRU & BiLSTM)
-
-Day 2 focused on improving generalization, evaluation depth, and deployment readiness of the baseline RNN models.
-
-- Introduced **EarlyStopping** (monitoring validation AUC) to prevent overfitting and restore the best weights.
-- Added **ModelCheckpoint** to automatically save the best-performing model (`best_model.keras`).
-- Expanded evaluation metrics from only AUC to **AUC + Precision + Recall** for better analysis of multi-label performance.
-- Implemented a dedicated **test evaluation pipeline** with manual metric computation.
-- Applied **threshold tuning (0.3 instead of 0.5)** to better balance precision–recall trade-offs.
-- Simplified the dense architecture by removing the extra `Dense(256)` layer to reduce model complexity.
-- Compared models across multiple metrics to analyze precision vs recall behavior.
-- Made the training workflow deployment-ready by standardizing model saving and evaluation.
-  
-# GloVe Integration & Embedding Experiments
-
-## Objective
-
-Enhance semantic representation by replacing randomly initialized embeddings with pretrained **GloVe (100d)** vectors and compare:
-
-- Trainable embeddings (fine-tuned)
-- Frozen embeddings (static)
+This is a multi-label classification problem evaluated using Macro F1 score.
 
 ---
 
-## Implementation
+## Core Techniques
 
-- Loaded `glove-wiki-gigaword-100` using `gensim`.
-- Built an embedding matrix aligned with the `TextVectorization` vocabulary.
-- Achieved ~58% vocabulary coverage.
-- Created two embedding configurations:
-  - `trainable=True`
-  - `trainable=False`
-- Trained four models:
-  - BiGRU (Trainable)
-  - BiGRU (Frozen)
-  - BiLSTM (Trainable)
-  - BiLSTM (Frozen)
+### Class Imbalance Handling
+- Computed label-wise positive weights  
+- Applied weighted binary cross-entropy  
+- Improved recall on minority classes  
 
----
+### Threshold Optimization
+- Per-label threshold tuning using validation data  
+- Maximizes Macro F1  
+- Avoids bias introduced by fixed thresholds  
 
-## Key Observations
-
-- Pretrained embeddings improved semantic initialization.
-
-- ~58% coverage makes fine-tuning important.
-
-- Frozen embeddings train slightly faster.
-
-- Trainable embeddings generally achieve better validation AUC.
-
-- GRU remains slightly faster than LSTM.
-
-#### Finally, decided to move on with the model using ```trainable = True``` since it gave much better results as shown in the table. 
-
-# Class Imbalance Handling and CNN Architecture
-
-Day 4 focuses on addressing severe class imbalance in the dataset and expanding the architecture comparison by introducing a CNN-based model alongside RNN variants.
+### Transformer Fine-Tuning
+- Pretrained RoBERTa model  
+- Context-aware embeddings  
+- Independent sigmoid outputs for each label  
 
 ---
 
-## Class Imbalance Analysis
+## Project Structure
 
-The dataset is highly imbalanced across toxicity categories.  
-Rare classes such as `threat`, `severe_toxic`, and `identity_hate` occur significantly less frequently than `toxic` or non-toxic samples.
-
-Computed positive class weights:
-
-- toxic → 5.21  
-- severe_toxic → 50.02  
-- obscene → 9.44  
-- threat → 166.91  
-- insult → 10.12  
-- identity_hate → 56.78  
-
-The extreme weight for `threat` confirms severe imbalance.  
-Without correction, the model favors the dominant negative class, leading to poor minority recall despite high AUC.
+/frontend → Netlify UI  
+/backend → HuggingFace Space API  
+/model → Saved model and thresholds  
+/notebooks → Training and experimentation  
 
 ---
 
-## Weighted Binary Crossentropy
+## Limitations
 
-To mitigate imbalance, a custom weighted binary crossentropy loss was implemented:
-
-Weighted BCE =  
-− ( w * y_true * log(y_pred) + (1 − y_true) * log(1 − y_pred) )
-
-Where:
-
-- `w` represents class-specific positive weights  
-- Minority labels receive stronger gradient updates  
-- False negatives are penalized more heavily  
-
-This modification shifts optimization toward recall improvement for rare categories.
+- Performance on rare classes remains challenging  
+- Dataset bias (Jigsaw dataset)  
+- No multilingual support  
+- Inference latency depends on HuggingFace resources  
 
 ---
 
-## Threshold Adjustment
+## Future Work
 
-The prediction threshold was reduced from 0.5 to 0.3.
-
-Effects observed:
-
-- Substantial recall increase  
-- Lower precision due to more aggressive predictions  
-- Improved Macro F1 compared to previous versions  
-
-This adjustment better aligns the system with safety-focused deployment scenarios.
+- Multilingual toxicity detection  
+- Model optimization (quantization, pruning)  
+- Dedicated backend deployment (FastAPI, Docker)  
+- Explainability methods for predictions  
 
 ---
 
-## CNN Architecture Introduction
+## Summary
 
-In addition to BiGRU and BiLSTM models, a CNN-based architecture was introduced.
-
-Architecture:
-
-- Trainable GloVe embedding layer  
-- Conv1D (64 filters, kernel size = 5)  
-- Conv1D (128 filters, kernel size = 5)  
-- GlobalMaxPooling1D  
-- Dense layers  
-- Sigmoid output (6 labels)  
-
-The CNN captures local n-gram patterns efficiently and trains significantly faster than RNN variants, providing a strong computational baseline.
-
----
-
-## Key Observations
-
-- Weighted loss significantly increased recall across all models.
-- GRU achieved the best overall balance (highest Macro F1).
-- CNN trained nearly 3× faster than RNNs but slightly underperformed in Macro F1.
-- Precision decreased due to aggressive minority detection, which is expected under weighted optimization.
-- AUC improved beyond 0.98, indicating strong ranking capability despite imbalance.
-
-## Threshold Optimization & Frontend Integration  
-
-Day 5 represents the transition from model experimentation to a deployment-oriented system.  
-This phase improves prediction calibration and introduces a user-facing interface for real-time toxicity detection.
-
----
-
-## Threshold Optimization
-
-To improve real-world classification performance, decision thresholds were optimized using validation data.
-
-### What Was Implemented
-
-- Built an efficient inference pipeline to collect validation predictions in a single forward pass.
-- Performed systematic threshold sweeping from 0.1 to 1.0.
-- Computed Macro F1 score at each threshold.
-- Selected the threshold that maximized validation Macro F1.
-- Assigned model-specific optimal thresholds for BiGRU, BiLSTM, and CNN architectures.
-
-### Why It Matters
-
-Multi-label toxicity detection is highly imbalanced.  
-Using a fixed threshold can:
-
-- Reduce minority recall  
-- Distort Macro F1  
-- Create unstable deployment behavior  
-
-Validation-based calibration ensures:
-
-- Better precision–recall balance  
-- Improved Macro F1  
-- Fair test evaluation (no data leakage)  
-- Deployment-ready decision boundaries  
-
-
-### Currently The Project Has:
-- Pretrained GloVe embeddings  
-- Class imbalance handling via weighted binary crossentropy  
-- RNN (BiGRU, BiLSTM) and CNN architecture comparison  
-- Early stopping and checkpointing  
-- Validation-based threshold optimization  
-
-## Transformer-Based Model (BERT Fine-Tuning)
-
-This phase extends the project by incorporating a pretrained Transformer model to compare against earlier RNN and CNN architectures.
-
----
-
-### Objective
-
-Leverage contextual embeddings from **BERT (bert-base-uncased)** to improve multi-label toxicity classification, especially for nuanced and context-dependent language.
-
----
-
-### Dataset Pipeline (HuggingFace Datasets)
-
-- Converted Pandas DataFrame into `Dataset` format.
-- Performed a **3-way split**:
-  - Train (72%)
-  - Validation (8%)
-  - Test (20%)
-- Created a unified `DatasetDict` for seamless training.
-
-#### Label Construction
-
-- Combined the 6 toxicity columns into a single `labels` vector.
-- Ensures compatibility with multi-label classification setup.
-
----
-
-### Tokenization
-
-- Used `AutoTokenizer` with:
-  - Truncation enabled
-  - Dynamic padding via `DataCollatorWithPadding`
-- Removed raw text and individual label columns after tokenization.
-
----
-
-### Model Configuration
-
-- Model: `bert-base-uncased`
-- Head: Sequence classification
-- Setup:
-  - `num_labels = 6`
-  - `problem_type = "multi_label_classification"`
-
-#### Key Detail
-
-- Uses **sigmoid activation internally (not softmax)**
-- Each label is predicted independently
-
----
-
-### Training Setup
-
-- Optimizer: AdamW  
-- Learning rate: 2e-5  
-- Weight decay: 0.01  
-- Batch size: 16  
-- Epochs: 3  
-
-#### Strategies
-
-- Evaluation: Every epoch  
-- Checkpointing: Every epoch  
-- Best model selected based on **Macro F1**
-
----
-
-### Threshold Optimization (Transformer)
-
-Unlike earlier models where a fixed threshold (e.g., 0.3) was used, BERT introduces **per-class threshold tuning**.
-
-#### Method
-
-- Convert logits → probabilities using sigmoid:
-  p = 1 / (1 + exp(-logits))
-
-
-- For each label:
-- Sweep thresholds from 0.1 to 0.9
-- Select threshold that maximizes F1 score
-
-#### Why This Matters
-
-- Each toxicity class has different imbalance levels  
-- A single threshold is suboptimal  
-- Per-class calibration improves Macro F1 and deployment reliability  
-
----
-
-### Metric Computation
-
-- Predictions are generated using optimized thresholds
-- Evaluation metric:
-- **Macro F1 Score**
-
----
-
-### Key Takeaways
-
-- Transformer models capture **contextual semantics** better than RNN/CNN  
-- No need for manual embeddings (e.g., GloVe)  
-- Slightly higher training cost but better generalization  
-- Threshold tuning remains critical even with powerful models  
-
----
-
-### Current System Status
-
-- Traditional models: BiGRU, BiLSTM, CNN (with GloVe + class weighting)  
-- Transformer model: BERT fine-tuned for multi-label classification  
-- Unified evaluation: Macro F1 + threshold optimization  
-- Ready for final comparison and deployment selection  
+This project demonstrates a complete machine learning pipeline from experimentation to deployment, addressing real-world challenges such as class imbalance and threshold calibration while leveraging Transformer-based models for improved performance.
