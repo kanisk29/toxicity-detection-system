@@ -34,12 +34,12 @@ Example input:
 
 | Label           | Before | After |
 |----------------|--------|------|
-| toxic          | 0.816 → 0.835 |
-| severe_toxic   | 0.488 → 0.552 |
-| obscene        | 0.817 → 0.840 |
-| threat         | 0.563 → 0.623 |
-| insult         | 0.750 → 0.777 |
-| identity_hate  | 0.533 → 0.539 |
+| toxic          | 0.816 |0.835 |
+| severe_toxic   | 0.488 | 0.552 |
+| obscene        | 0.817 | 0.840 |
+| threat         | 0.563 | 0.623 |
+| insult         | 0.750 | 0.777 |
+| identity_hate  | 0.533 | 0.539 |
 
 ---
 
