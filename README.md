@@ -8,13 +8,7 @@ This project compares traditional deep learning architectures (RNN, CNN) with Tr
 
 ## Live Demo
 
-Frontend: https://toxicity-detector-by-kanisk.netlify.app  
-Backend API: https://huggingface.co/spaces/kanisk29/toxicity-backend  
-
-Example input:
-"I will kill you"
-
----
+https://toxicity-detector-by-kanisk.netlify.app  
 
 ## Final Deployed Model
 
