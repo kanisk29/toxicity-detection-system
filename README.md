@@ -1,7 +1,6 @@
 # Toxicity Detection System
 
 End-to-end multi-label toxicity classification system with real-time deployment.
-
 This project compares traditional deep learning architectures (RNN, CNN) with Transformer-based models and deploys the best-performing model in a production-ready pipeline.
 
 ---
