@@ -19,24 +19,6 @@ https://toxicity-detector-by-kanisk.netlify.app
 
 ---
 
-## Final Performance (Test Set)
-
-- Baseline Macro F1: 0.661  
-- Optimized Macro F1: 0.6947  
-
-### Per-label Performance Improvement
-
-| Label           | Before | After |
-|----------------|--------|------|
-| toxic          | 0.816 |0.835 |
-| severe_toxic   | 0.488 | 0.552 |
-| obscene        | 0.817 | 0.840 |
-| threat         | 0.563 | 0.623 |
-| insult         | 0.750 | 0.777 |
-| identity_hate  | 0.533 | 0.539 |
-
----
-
 ## Model Comparison (Macro F1)
 
 | Model                  | Imbalance Handling | Macro F1 (Test) | Notes |
@@ -47,6 +29,24 @@ https://toxicity-detector-by-kanisk.netlify.app
 | BiLSTM (Weighted)      | Yes               | 0.3695           | High recall, low precision |
 | CNN (Weighted)         | Yes               | 0.3596           | Fastest model |
 | RoBERTa (Final Model)  | Yes               | 0.6947           | Best overall performance |
+
+---
+
+## Final Performance (Test Set)
+
+- Baseline Macro F1: 0.4397  
+- Optimized Macro F1: 0.6947  
+
+### Per-label Performance Improvement in Transformers
+
+| Label           | Before | After |
+|----------------|--------|------|
+| toxic          | 0.816 |0.835 |
+| severe_toxic   | 0.488 | 0.552 |
+| obscene        | 0.817 | 0.840 |
+| threat         | 0.563 | 0.623 |
+| insult         | 0.750 | 0.777 |
+| identity_hate  | 0.533 | 0.539 |
 
 ---
 
