@@ -2,67 +2,220 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ToxScan — AI Toxicity Detector</title>
+  <title>ToxScan</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- Animated background -->
 <canvas id="bg"></canvas>
-<div class="grain"></div>
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
-<div class="orb orb-3"></div>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<!-- Corner decorations -->
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<!-- System status bar -->
+<div class="status-bar">
+  <div class="status-left">
+    <span class="status-dot blink"></span>
+    <span class="status-text">TOXSCAN v2.4.1 — NEURAL ENGINE ONLINE</span>
+  </div>
+  <div class="status-right">
+    <span id="systemClock"></span>
+    <span class="status-sep">|</span>
+    <span id="sessionCount">SESSION: 0 SCANS</span>
+  </div>
+</div>
 
 <div class="layout">
 
-  <!-- LEFT: Main Analyzer -->
-  <div class="panel main-panel">
-    <div class="panel-header">
-      <div class="logo">
-        <span class="logo-icon">◈</span>
-        <span class="logo-text">ToxScan</span>
+  <!-- LEFT: Stats Panel -->
+  <div class="panel stats-panel">
+    <div class="panel-label">ANALYTICS</div>
+
+    <!-- Threat Gauge -->
+    <div class="gauge-section">
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+          <!-- bg arc -->
+          <path d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="12" stroke-linecap="round"/>
+          <!-- colored arc -->
+          <path id="gaugeArc" d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="url(#gaugeGrad)" stroke-width="12" stroke-linecap="round"
+                stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+          <defs>
+            <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00ff88"/>
+              <stop offset="50%" stop-color="#ffcc00"/>
+              <stop offset="100%" stop-color="#ff3366"/>
+            </linearGradient>
+          </defs>
+          <!-- needle -->
+          <g id="gaugeNeedle" transform="rotate(-90, 100, 110)">
+            <line x1="100" y1="110" x2="100" y2="42" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+            <circle cx="100" cy="110" r="4" fill="white"/>
+          </g>
+          <!-- labels -->
+          <text x="16" y="125" fill="rgba(255,255,255,0.3)" font-size="8" font-family="IBM Plex Mono">SAFE</text>
+          <text x="162" y="125" fill="rgba(255,255,255,0.3)" font-size="8" font-family="IBM Plex Mono">TOXIC</text>
+          <text x="100" y="95" fill="white" font-size="20" font-family="Bebas Neue" text-anchor="middle" id="gaugeVal">0%</text>
+          <text x="100" y="107" fill="rgba(255,255,255,0.35)" font-size="7" font-family="IBM Plex Mono" text-anchor="middle">THREAT LEVEL</text>
+        </svg>
       </div>
-      <div class="tagline">Toxicity Detection System</div>
     </div>
 
-    <div class="input-area">
-      <div class="textarea-wrap">
-        <textarea id="inputText" placeholder="Paste or type a comment to analyze..."></textarea>
-        <div class="char-count"><span id="charCount">0</span> chars</div>
+    <!-- Session Stats -->
+    <div class="stat-grid">
+      <div class="stat-cell">
+        <div class="stat-val" id="statTotal">0</div>
+        <div class="stat-key">TOTAL SCANS</div>
       </div>
-      <button id="analyzeBtn">
-        <span class="btn-text">Analyze</span>
-        <span class="btn-arrow">→</span>
+      <div class="stat-cell">
+        <div class="stat-val toxic-val" id="statToxic">0</div>
+        <div class="stat-key">FLAGGED</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-val safe-val" id="statSafe">0</div>
+        <div class="stat-key">CLEAN</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-val" id="statRate">—</div>
+        <div class="stat-key">TOXICITY RATE</div>
+      </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="breakdown-section">
+      <div class="section-label">CATEGORY BREAKDOWN</div>
+      <div id="categoryBreakdown" class="category-list">
+        <div class="breakdown-empty">Run an analysis to see breakdown</div>
+      </div>
+    </div>
+
+    <!-- Mini sparkline chart -->
+    <div class="spark-section">
+      <div class="section-label">SCAN HISTORY TREND</div>
+      <svg id="sparkline" class="sparkline" viewBox="0 0 260 50" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#a855f7" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path id="sparkPath" d="" fill="url(#sparkGrad)" opacity="0.6"/>
+        <path id="sparkLine" d="" fill="none" stroke="#a855f7" stroke-width="1.5"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- CENTER: Main Analyzer -->
+  <div class="panel main-panel">
+    <!-- Header -->
+    <div class="panel-header">
+      <div class="logo">
+        <div class="logo-mark">
+          <svg width="36" height="36" viewBox="0 0 36 36">
+            <polygon points="18,2 34,10 34,26 18,34 2,26 2,10" fill="none" stroke="url(#hexGrad)" stroke-width="2"/>
+            <polygon points="18,8 28,13 28,23 18,28 8,23 8,13" fill="none" stroke="url(#hexGrad)" stroke-width="1" opacity="0.5"/>
+            <circle cx="18" cy="18" r="4" fill="url(#hexGrad)"/>
+            <defs>
+              <linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#a855f7"/>
+                <stop offset="100%" stop-color="#ff3366"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="logo-text-wrap">
+          <div class="logo-title">TOXSCAN</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-section">
+      <div class="input-header">
+        <span class="input-label">INPUT VECTOR</span>
+        <span class="char-count"><span id="charCount">0</span> CHARS</span>
+      </div>
+      <div class="textarea-wrap">
+        <textarea id="inputText" placeholder="// paste or type text to analyze for toxicity signals...
+// supports: comments, messages, reviews, social posts"></textarea>
+        <div class="textarea-corner ta-tl"></div>
+        <div class="textarea-corner ta-tr"></div>
+        <div class="textarea-corner ta-bl"></div>
+        <div class="textarea-corner ta-br"></div>
+      </div>
+      <button id="analyzeBtn" class="analyze-btn">
+        <div class="btn-bg"></div>
+        <span class="btn-icon">⬡</span>
+        <span class="btn-label">INITIATE SCAN</span>
+        <span class="btn-arrow">▶</span>
+        <div class="btn-scanner"></div>
       </button>
     </div>
 
+    <!-- Loader -->
     <div id="loader">
-      <div class="loader-track"><div class="loader-bar"></div></div>
-      <span class="loader-label">Scanning<span class="dots">...</span></span>
+      <div class="loader-line">
+        <div class="loader-progress"></div>
+      </div>
+      <div class="loader-info">
+        <span class="loader-label" id="loaderLabel">INITIALIZING NEURAL SCAN</span>
+        <span class="loader-pct" id="loaderPct">0%</span>
+      </div>
+      <div class="loader-steps">
+        <div class="lstep" id="lstep1">▸ Tokenizing input...</div>
+        <div class="lstep" id="lstep2">▸ Running classifier...</div>
+        <div class="lstep" id="lstep3">▸ Aggregating signals...</div>
+      </div>
     </div>
 
+    <!-- Heatmap -->
+    <div id="heatmapSection" class="heatmap-section" style="display:none">
+      <div class="section-label">WORD HEATMAP <span class="heatmap-legend"><span class="hl-safe">safe</span> → <span class="hl-toxic">toxic</span></span></div>
+      <div id="heatmap" class="heatmap"></div>
+    </div>
+
+    <!-- Results -->
     <div id="results" class="results-area"></div>
   </div>
 
   <!-- RIGHT: History Panel -->
   <div class="panel history-panel">
+    <div class="panel-label">SCAN LOG</div>
     <div class="history-header">
-      <span class="history-title">History</span>
-      <button class="clear-btn" id="clearBtn">✕ Clear</button>
+      <div class="history-count"><span id="histCount">0</span> entries</div>
+      <button class="clear-btn" id="clearBtn">⊘ PURGE</button>
     </div>
     <div class="history-list" id="historyList">
       <div class="history-empty" id="historyEmpty">
-        <span class="empty-icon">◌</span>
-        <p>No analyses yet</p>
+        <div class="empty-animation">
+          <svg width="48" height="48" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <circle cx="24" cy="24" r="14" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <circle cx="24" cy="24" r="2" fill="rgba(255,255,255,0.1)"/>
+          </svg>
+        </div>
+        <p>NO SCANS LOGGED</p>
+        <span>Run your first analysis to begin</span>
       </div>
     </div>
   </div>
 
 </div>
 
+<!-- Toast notification -->
+<div id="toast" class="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
