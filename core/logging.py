@@ -10,3 +10,4 @@ file_handler.setFormatter(formatter)
 if not logger.handlers:
     logger.addHandler(console_handler)
     logger.addHandler(file_handler) 
+logger.propagate = True
