@@ -3,11 +3,17 @@
 End-to-end multi-label toxicity classification system with real-time deployment.
 This project compares traditional deep learning architectures (RNN, CNN) with Transformer-based models and deploys the best-performing model in a production-ready pipeline.
 
----
-
 ## Live Demo
 
 https://toxicity-detector-by-kanisk.netlify.app  
+
+## Recent Updates
+
+- Redesigned and improved the UI/UX to make the application more intuitive, responsive, and user-friendly  
+- Enhanced frontend flow for clearer display of predictions and smoother interaction with the model  
+- Currently integrating structured logging to track API requests, model outputs, and system errors for better monitoring and debugging  
+
+---
 
 ## Final Deployed Model
 
@@ -38,9 +44,9 @@ https://toxicity-detector-by-kanisk.netlify.app
 
 ### Per-label Performance Improvement in Transformers
 
-| Label           | Before | After |
-|----------------|--------|------|
-| toxic          | 0.816 |0.835 |
+| Label          | Before | After |
+|----------------|-------|-------|
+| toxic          | 0.816 | 0.835 |
 | severe_toxic   | 0.488 | 0.552 |
 | obscene        | 0.817 | 0.840 |
 | threat         | 0.563 | 0.623 |
@@ -67,6 +73,7 @@ Frontend
 → Model inference  
 → Per-label thresholding  
 → Returns probabilities and binary predictions  
+→ *(In progress)* Logging layer for request tracking, monitoring, and debugging  
 
 ---
 
@@ -84,6 +91,8 @@ POST /predict
 }
 ```
 ### Response [Example]
+
+```json
 {
   "toxic": 0.82,
   "severe_toxic": 0.12,
@@ -92,6 +101,7 @@ POST /predict
   "insult": 0.64,
   "identity_hate": 0.02
 }
+```
 
 ## Problem Statement
 
@@ -139,7 +149,6 @@ This is a multi-label classification problem evaluated using Macro F1 score.
 ## Limitations
 
 - Performance on rare classes remains challenging  
-- Dataset bias (Jigsaw dataset)  
 - No multilingual support  
 - Inference latency depends on HuggingFace resources  
 
@@ -148,12 +157,12 @@ This is a multi-label classification problem evaluated using Macro F1 score.
 ## Future Work
 
 - Multilingual toxicity detection  
-- Model optimization (quantization, pruning)  
-- Dedicated backend deployment (FastAPI, Docker)  
-- Explainability methods for predictions  
+- Model optimization (quantization, pruning)
+- Production-grade logging and monitoring system  
+- Continuous UI/UX improvements based on user feedback  
 
 ---
 
 ## Summary
 
-This project demonstrates a complete machine learning pipeline from experimentation to deployment, addressing real-world challenges such as class imbalance and threshold calibration while leveraging Transformer-based models for improved performance.
+This project demonstrates a complete machine learning pipeline from experimentation to deployment, with recent improvements focused on usability and system reliability. The UI/UX has been enhanced to provide a smoother and more intuitive user experience, and logging capabilities are being integrated to support monitoring, debugging, and production readiness. The system addresses real-world challenges such as class imbalance and threshold calibration while leveraging Transformer-based models for strong performance.
