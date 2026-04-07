@@ -2,9 +2,9 @@ import logging
 import sys
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(filename)s - %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 
-logger = logging.getLogger()   # ← ROOT LOGGER
+logger = logging.getLogger()   # ROOT LOGGER
