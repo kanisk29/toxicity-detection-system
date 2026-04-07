@@ -1,11 +1,10 @@
-print("App starting")
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from huggingface_hub import hf_hub_download
 import torch
 from core.logging import logger
-print("Started")
 
 import json
 logger.info('Starting FastAPI app')
