@@ -1,18 +1,23 @@
 import torch
 import json
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from core.logging import logger
+from huggingface_hub import hf_hub_download
+import json
+
 
 MODEL_PATH = "kanisk29/toxicity-detector-v1"    
 
 # Load tokenizer
+logger.info("Loading Tokenizer")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
-
+logger.info("Loaded Tokenizer")
 # Load model
+logger.info("Loading Model")
 model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
 model.eval()
+logger.info("Loaded Model")
 
-from huggingface_hub import hf_hub_download
-import json
 
 threshold_path = hf_hub_download(
     repo_id=MODEL_PATH,
