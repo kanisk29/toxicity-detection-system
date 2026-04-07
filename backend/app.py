@@ -47,7 +47,6 @@ def predict(req: TextRequest):
     import time
     start = time.time()
     logger.info("Received prediction request")
-    logger.info(f"Received Text: {(req.text)}")
     logger.info(f"Input length: {len(req.text)}")
     inputs = tokenizer(req.text, return_tensors="pt", truncation=True, padding=True)
 
