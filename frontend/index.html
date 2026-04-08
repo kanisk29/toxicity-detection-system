@@ -38,7 +38,7 @@
 
   <!-- LEFT: Stats Panel -->
   <div class="panel stats-panel">
-    <div class="panel-label">ANALYTICS</div>
+    <div class="panel-label" style="color: rgb(210, 140, 245);">ANALYTICS</div>
 
     <!-- Threat Gauge -->
     <div class="gauge-section">
@@ -62,10 +62,10 @@
             <circle cx="100" cy="110" r="4" fill="white"/>
           </g>
           <!-- labels -->
-          <text x="16" y="125" fill="rgba(255,255,255,0.3)" font-size="8" font-family="IBM Plex Mono">SAFE</text>
-          <text x="162" y="125" fill="rgba(255,255,255,0.3)" font-size="8" font-family="IBM Plex Mono">TOXIC</text>
+          <text y="50" fill="rgba(255,255,255,0.65)" font-size="9" font-family="IBM Plex Mono">SAFE</text>
+          <text x="172" y="50" fill="rgba(255,255,255,0.65)" font-size="9" font-family="IBM Plex Mono">TOXIC</text>
           <text x="100" y="95" fill="white" font-size="20" font-family="Bebas Neue" text-anchor="middle" id="gaugeVal">0%</text>
-          <text x="100" y="107" fill="rgba(255,255,255,0.35)" font-size="7" font-family="IBM Plex Mono" text-anchor="middle">THREAT LEVEL</text>
+          <text x="100" y="107" fill="rgba(255,255,255,0.35)" font-size="7" font-family="IBM Plex Mono" text-anchor="middle">CONTENT RISK</text>
         </svg>
       </div>
     </div>
@@ -92,7 +92,7 @@
 
     <!-- Category Breakdown -->
     <div class="breakdown-section">
-      <div class="section-label">CATEGORY BREAKDOWN</div>
+      <div class="section-label" style="color: rgb(210, 140, 245);">CATEGORY BREAKDOWN</div>
       <div id="categoryBreakdown" class="category-list">
         <div class="breakdown-empty">Run an analysis to see breakdown</div>
       </div>
@@ -100,7 +100,7 @@
 
     <!-- Mini sparkline chart -->
     <div class="spark-section">
-      <div class="section-label">SCAN HISTORY TREND</div>
+      <div class="section-label" style="color: rgb(210, 140, 245);">SCAN HISTORY TREND</div>
       <svg id="sparkline" class="sparkline" viewBox="0 0 260 50" preserveAspectRatio="none">
         <defs>
           <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
@@ -141,7 +141,7 @@
     <!-- Input Area -->
     <div class="input-section">
       <div class="input-header">
-        <span class="input-label">INPUT VECTOR</span>
+        <span class="input-label" style="color: rgb(210, 140, 245);">INPUT TEXT</span>
         <span class="char-count"><span id="charCount">0</span> CHARS</span>
       </div>
       <div class="textarea-wrap">
@@ -167,7 +167,7 @@
         <div class="loader-progress"></div>
       </div>
       <div class="loader-info">
-        <span class="loader-label" id="loaderLabel">INITIALIZING NEURAL SCAN</span>
+        <span class="loader-label" id="loaderLabel">INITIALIZING SCAN</span>
         <span class="loader-pct" id="loaderPct">0%</span>
       </div>
       <div class="loader-steps">
@@ -179,7 +179,7 @@
 
     <!-- Heatmap -->
     <div id="heatmapSection" class="heatmap-section" style="display:none">
-      <div class="section-label">WORD HEATMAP <span class="heatmap-legend"><span class="hl-safe">safe</span> → <span class="hl-toxic">toxic</span></span></div>
+      <div class="section-label" style="color: rgb(210, 140, 245);">WORD HEATMAP <span class="heatmap-legend"><span class="hl-safe">safe</span> → <span class="hl-toxic">toxic</span></span></div>
       <div id="heatmap" class="heatmap"></div>
     </div>
 
@@ -189,7 +189,7 @@
 
   <!-- RIGHT: History Panel -->
   <div class="panel history-panel">
-    <div class="panel-label">SCAN LOG</div>
+    <div class="panel-label" style="color: rgb(210, 140, 245);">SCAN LOG</div>
     <div class="history-header">
       <div class="history-count"><span id="histCount">0</span> entries</div>
       <button class="clear-btn" id="clearBtn">⊘ PURGE</button>
@@ -204,7 +204,7 @@
           </svg>
         </div>
         <p>NO SCANS LOGGED</p>
-        <span>Run your first analysis to begin</span>
+        <span style="">Run your first analysis to begin</span>
       </div>
     </div>
   </div>

@@ -1,7 +1,7 @@
 import logging
 import sys
 
-logger = logging.getLogger("toxicity-backend")
+logger = logging.getLogger("kanisk29/toxicity-backend")
 logger.setLevel(logging.INFO)
 
 handler = logging.StreamHandler(sys.stdout)

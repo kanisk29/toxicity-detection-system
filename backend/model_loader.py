@@ -8,11 +8,9 @@ import json
 
 MODEL_PATH = "kanisk29/toxicity-detector-v1"    
 
-# Load tokenizer
 logger.info("Loading Tokenizer")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
 logger.info("Loaded Tokenizer")
-# Load model
 logger.info("Loading Model")
 model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
 model.eval()
@@ -27,7 +25,6 @@ threshold_path = hf_hub_download(
 with open(threshold_path, "r") as f:
     thresholds = json.load(f)
 
-# Label names (adjust if needed)
 labels = list(thresholds.keys())
 
 
