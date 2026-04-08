@@ -4,7 +4,10 @@ from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from huggingface_hub import hf_hub_download
 import torch
-from core.logging import logger
+from core.logging import get_logger
+
+logger = get_logger(__name__)
+logger.info("App started")
 
 import json
 logger.info('Starting FastAPI app')
