@@ -1,8 +1,0 @@
-models/
-__pycache__/
-*.pyc
-.cache/
-.env
-venv/
-.DS_Store
-

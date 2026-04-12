@@ -285,61 +285,83 @@ document.getElementById('clearBtn').addEventListener('click', () => {
 //  WORD HEATMAP
 // ══════════════════════════════════════════════════════
 const TOXIC_WORDS = new Set([
-  'hate','kill','die','stupid','idiot','moron','dumb','trash','garbage','awful',
-  'terrible','horrible','worst','disgusting','pathetic','loser','ugly','fat',
-  'freak','toxic','abuse','attack','threaten','racist','sexist','bigot','slur',
-  'insult','fuck','shit','ass','bitch','bastard','damn','crap','hell','retard',
-  'faggot','worthless','scum','filth','pig','monster','evil','vile','cruel',
-  'disgusted','offensive','violent','bully','harass','spam','flood','troll'
+  'fuck','fucking','bitch','bastard','idiot',
+  'stupid','retard','faggot','kill','die',
+  'garbage','loser','ugly','scum','filth','pig','monster',
+  'racist','sexist','bigot','slur','nigga','nigger','slut',
+  'whore','nazi','curb stomp','stabbed','killed','swine',
+  'fuck','fucking','motherfucker','bitch','bastard',
+  'abuse','attack','threaten','bully','harass','rape'
 ]);
 
 function renderHeatmap(text, results) {
   const section   = document.getElementById('heatmapSection');
   const container = document.getElementById('heatmap');
+
+  if (!section || !container) return;
+
   section.style.display = 'block';
   container.innerHTML = '';
 
-  const toxicScore = Math.max(...Object.values(results).map(r => r.prediction === 1 ? r.confidence : 0));
+  // Safe handling of results
+  const values = Object.values(results || {});
+  const toxicScore = values.length
+    ? Math.max(...values.map(r => r.prediction === 1 ? r.confidence : 0))
+    : 0;
+
   const words = text.split(/(\s+)/);
 
   words.forEach((token, i) => {
+
+    // Preserve spaces
     if (/^\s+$/.test(token)) {
       container.appendChild(document.createTextNode(token));
       return;
     }
-    const clean    = token.toLowerCase().replace(/[^a-z]/g, '');
-    const isToxic  = TOXIC_WORDS.has(clean);
-    const span     = document.createElement('span');
+
+    const clean = token.toLowerCase().replace(/[^a-z]/g, '');
+    const isToxic = TOXIC_WORDS.has(clean);
+
+    const span = document.createElement('span');
     span.className = 'word';
     span.textContent = token;
 
+    // ---------- FIXED HEAT LOGIC ----------
     let heat = 0;
-    if (isToxic)           heat = 0.65 + Math.random() * 0.35;
-    else if (toxicScore > 0.5) heat = Math.random() * 0.25;
 
-    if (heat > 0.08) {
-      span.style.background    = `rgba(255,${Math.round(51*(1-heat))},${Math.round(102*(1-heat))},${heat * 0.4})`;
-      span.style.color         = `rgba(255,${Math.round(180*(1-heat))},${Math.round(180*(1-heat))},1)`;
-      span.style.padding       = '1px 3px';
-      span.style.borderRadius  = '2px';
-      span.title = isToxic ? '⚠ Potential toxic signal' : 'Contextual risk';
-    } else {
-      span.style.color = `rgba(220,228,245,0.82)`;
+    if (isToxic) {
+      heat = 0.85; // strong, consistent highlight
+    } else if (toxicScore > 0.75) {
+      // very subtle context effect (optional)
+      heat = 0.12;
     }
 
-    span.style.opacity   = '0';
-    span.style.transform = 'translateY(4px)';
-    span.style.transition = `opacity 0.3s ${i * 0.015}s, transform 0.3s ${i * 0.015}s`;
-    span.style.display = 'inline';
+    // ---------- APPLY STYLES ----------
+    if (heat > 0) {
+      span.style.background = `rgba(255, 0, 80, ${heat * 0.35})`;
+      span.style.color = `rgba(255, ${180 - heat*100}, ${180 - heat*100}, 1)`;
+      span.style.padding = '2px 4px';
+      span.style.borderRadius = '3px';
+      span.title = isToxic
+        ? '⚠ Toxic word detected'
+        : 'Contextual risk';
+    } else {
+      span.style.color = 'rgba(220,228,245,0.85)';
+    }
+
+    // ---------- CLEAN ANIMATION ----------
+    span.style.opacity = '0';
+    span.style.transform = 'translateY(3px)';
+    span.style.transition = `opacity 0.25s ${i * 0.01}s, transform 0.25s ${i * 0.01}s`;
+
     container.appendChild(span);
 
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      span.style.opacity   = '1';
+    requestAnimationFrame(() => {
+      span.style.opacity = '1';
       span.style.transform = 'translateY(0)';
-    }));
+    });
   });
 }
-
 
 // ══════════════════════════════════════════════════════
 //  LOADER ANIMATION
