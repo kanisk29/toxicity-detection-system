@@ -41,6 +41,37 @@ https://toxicity-detector-by-kanisk.netlify.app
 
 --- 
 
+## Design Decisions
+
+### Why Transformer over RNN and CNN
+
+#### RNN (BiLSTM, BiGRU)
+- Struggles with long-range dependencies in text
+- Fails to capture full context of sentences with multiple clauses
+- Observed issue: lower recall on minority classes such as `threat` and `identity_hate`
+
+#### CNN
+- Focuses on local n-gram patterns rather than full sentence meaning
+- Faster inference but weaker semantic understanding
+- Observed issue: misclassification of context-dependent toxicity
+
+#### Transformer (RoBERTa)
+- Uses self-attention to model relationships across the entire sentence
+- Captures contextual meaning more effectively
+- Achieved highest Macro F1, especially on minority classes
+
+### Model Selection Tradeoff
+
+| Model        | Accuracy | Latency | Decision |
+|-------------|---------|--------|---------|
+| CNN         | Low     | Very Low | Rejected due to poor contextual understanding |
+| RNN         | Medium  | Medium  | Rejected due to weak minority class performance |
+| RoBERTa     | High    | High    | Selected for best overall performance |
+
+Final decision prioritized classification quality over latency for initial deployment.
+
+---
+
 ### Per-label Performance Improvement in Transformers
 
 | Label          | Before | After |
@@ -56,7 +87,7 @@ https://toxicity-detector-by-kanisk.netlify.app
 
 ## Final Deployed Model
 
-- Model: RoBERTa (roberta-base)
+- Model: RoBERTa (roberta-base), selected after empirical comparison with RNN and CNN baselines
 - Task: Multi-label classification (6 labels)
 - Loss Function: BCEWithLogitsLoss (with class weighting)
 - Optimization: Per-label threshold tuning
@@ -75,6 +106,24 @@ Netlify Frontend (React UI)
 → Per-label thresholding applied using precomputed thresholds (`thresholds.json`)  
 → Returns probability scores and binary predictions as JSON response  
 → (In progress) Structured logging for request tracking, inference monitoring, and debugging  
+
+---
+
+## Inference Flow and System Behavior
+
+1. Client sends input text to `/predict`
+2. FastAPI backend receives request
+3. Text is tokenized using RoBERTa tokenizer
+4. Model performs forward pass to generate logits
+5. Sigmoid activation converts logits to probabilities
+6. Per-label thresholds applied for final predictions
+7. JSON response returned to frontend
+
+### Current Characteristics
+
+- Stateless API design
+- Single request per inference
+- No caching or batching
 
 ---
 
@@ -147,6 +196,32 @@ This is a multi-label classification problem evaluated using Macro F1 score.
 
 ---
 
+## Threshold Optimization Analysis
+
+Default threshold of 0.5 leads to suboptimal performance in multi-label classification due to class imbalance.
+
+### Observations
+
+- Different labels have different probability distributions
+- Rare classes such as `threat` and `identity_hate` require lower thresholds to improve recall
+- Frequent classes perform better with higher thresholds to maintain precision
+
+### Approach
+
+- Per-label thresholds were tuned using validation data
+- Objective: maximize Macro F1 score instead of individual accuracy
+
+### Impact
+
+- Baseline Macro F1: 0.4397
+- After optimization: 0.6947
+
+### Key Insight
+
+A single global threshold introduces bias toward majority classes.  
+Per-label calibration allows balanced performance across all categories.
+
+---
 ## Project Structure
 
 /frontend → Netlify UI  
@@ -163,6 +238,25 @@ This is a multi-label classification problem evaluated using Macro F1 score.
 - Inference latency depends on HuggingFace resources  
 
 ---
+
+## System Limitations and Tradeoffs
+
+### Latency vs Accuracy
+
+- RoBERTa provides strong performance but increases inference time
+- Deployment on HuggingFace Spaces introduces cold-start delays
+
+### Rare Class Performance
+
+- Minority classes still show lower recall despite weighting and threshold tuning
+- Indicates need for better data balancing or advanced loss functions
+
+
+### System Constraints
+
+- No caching layer implemented
+- No batching of requests
+- Each request triggers full model inference
 
 ## Future Work
 
