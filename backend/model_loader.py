@@ -1,9 +1,7 @@
 import torch
 import json
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from core.logging import logger
 from huggingface_hub import hf_hub_download
-import json
 from core.logging import get_logger
 
 logger = get_logger(__name__)
