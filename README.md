@@ -1,6 +1,8 @@
 # Toxicity Detection System
 
-End-to-end multi-label toxicity classification system with real-time inference and deployment.
+End-to-end toxicity detection and correction system combining **Transformer-based classification with LLM-powered text rewriting**.
+Built a **multi-label RoBERTa classifier** with **per-label threshold optimization to improve Macro F1, and integrated a post-processing module that generates safe, non-toxic rewrites while preserving original intent**.
+Deployed as a real-time production pipeline with API and frontend.
 This project compares traditional deep learning architectures (RNN, CNN) with Transformer-based models and deploys the best-performing model in a production-ready pipeline.
 
 Improved Macro F1 from 0.4397 → 0.6947 using per-label threshold optimization in a multi-label setting.
@@ -13,6 +15,7 @@ https://toxicity-detector-by-kanisk.netlify.app
 
 ## Key Contributions
 
+- Built a post-processing rewrite module using LLMs to convert toxic text into safe alternatives while preserving meaning
 - Implemented per-label threshold calibration instead of fixed 0.5 threshold  
 - Achieved significant Macro F1 improvement (0.4397 → 0.6947)  
 - Designed end-to-end ML system (model → API → frontend → deployment)
@@ -109,6 +112,26 @@ Netlify Frontend (React UI)
 
 ---
 
+## Toxicity Rewrite Module
+
+The system includes a post-processing rewrite module that converts toxic inputs into safe, non-toxic alternatives while preserving the original intent.
+
+### How it works
+
+- After classification, the system checks if any label exceeds its threshold
+- If the input is flagged as toxic, a rewrite is generated using an LLM
+- The rewritten output removes harmful language while maintaining semantic meaning
+- The rewrite is returned alongside prediction scores in the API response
+
+### Design Characteristics
+
+- Triggered only for toxic inputs (threshold-based activation)
+- Keeps original meaning intact while improving tone
+- Constrained generation (short, concise, no profanity)
+- Implemented as a separate module (not part of classifier)
+
+---
+
 ## Inference Flow and System Behavior
 
 1. Client sends input text to `/predict`
@@ -117,7 +140,8 @@ Netlify Frontend (React UI)
 4. Model performs forward pass to generate logits
 5. Sigmoid activation converts logits to probabilities
 6. Per-label thresholds applied for final predictions
-7. JSON response returned to frontend
+7. If toxicity detected, rewrite module generates sanitized version  
+8. JSON response returned to frontend (scores + rewrite)
 
 ### Current Characteristics
 
@@ -150,6 +174,8 @@ POST /predict
   "threat": 0.05,
   "insult": 0.64,
   "identity_hate": 0.02
+  },
+  "rewritten_text": "Rewritten Comment Suggestion: ..."
 }
 ```
 
