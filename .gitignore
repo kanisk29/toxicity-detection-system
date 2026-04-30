@@ -1,0 +1,4 @@
+backend/pycache/
+core/pycache/
+*.pyc
+.env

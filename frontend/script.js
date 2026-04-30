@@ -444,7 +444,6 @@ function stopLoader() {
 //  RESULTS RENDER
 // ══════════════════════════════════════════════════════
 const resultsDiv = document.getElementById('results');
-
 function renderResults(data) {
   resultsDiv.innerHTML = '';
   const results = data.results;
@@ -502,8 +501,22 @@ function renderResults(data) {
       item.querySelector('.bar-fill').style.width = pct + '%';
     }));
   });
-}
 
+  // ── Rewrite suggestion (only when toxic) ──
+  if (data.rewritten_text) {
+    const rewriteBox = document.createElement('div');
+    rewriteBox.className = 'rewrite-box';
+    rewriteBox.innerHTML = `
+      <div class="rewrite-label">✦ SUGGESTED REWRITE</div>
+      <div class="rewrite-text">${escapeHTML(data.rewritten_text)}</div>
+      <button class="copy-btn" id="copyRewrite">⊕ COPY</button>`;
+    resultsDiv.appendChild(rewriteBox);
+    document.getElementById('copyRewrite').addEventListener('click', () => {
+      navigator.clipboard.writeText(data.rewritten_text);
+      showToast('✓ COPIED TO CLIPBOARD');
+    });
+  }
+}
 
 // ══════════════════════════════════════════════════════
 //  PREDICT — wired to the real HF Space backend

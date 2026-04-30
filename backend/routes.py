@@ -13,5 +13,9 @@ class TextRequest(BaseModel):
 @router.post("/predict")
 @limiter.limit("60/minute") 
 def predict(request: Request, req: TextRequest):
-    results = predict_text(req.text)
-    return {"results": results}
+    output = predict_text(req.text)
+    if isinstance(output,tuple):
+        results,rewritten_text = output
+    else:
+        results,rewritten_text = output,None
+    return {"results":results,"rewritten_text":rewritten_text}
