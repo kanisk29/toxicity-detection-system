@@ -1,11 +1,12 @@
 # Toxicity Detection System
 
 End-to-end toxicity detection and correction system combining **Transformer-based classification with LLM-powered text rewriting**.
-Built a **multi-label RoBERTa classifier** with **per-label threshold optimization to improve Macro F1, and integrated a post-processing module that generates safe, non-toxic rewrites while preserving original intent**.
-Deployed as a real-time production pipeline with API and frontend.
-This project compares traditional deep learning architectures (RNN, CNN) with Transformer-based models and deploys the best-performing model in a production-ready pipeline.
 
-Improved Macro F1 from 0.4397 → 0.6947 using per-label threshold optimization in a multi-label setting.
+Built a **multi-label RoBERTa classifier** with **per-label threshold optimization to improve Macro F1 (0.4397 → 0.6947)**, and integrated a **post-processing module that generates safe, non-toxic rewrites while preserving original intent**.
+
+Benchmarked multiple architectures including **BiLSTM, BiGRU, CNN, and Transformers**, selecting RoBERTa based on superior performance on contextual understanding and minority class detection.
+
+Deployed as a real-time **production pipeline with API and frontend**, supporting scalable content moderation workflows.
 
 ## Live Demo
 
