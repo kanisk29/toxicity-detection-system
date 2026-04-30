@@ -502,28 +502,43 @@ function renderResults(data) {
     }));
   });
 
-  // ── Rewrite suggestion (only when toxic) ──
-  if (data.rewritten_text) {
-    const rewriteBox = document.createElement('div');
-    rewriteBox.className = 'rewrite-box';
-    rewriteBox.innerHTML = `
-      <div class="rewrite-label">✦ SUGGESTED REWRITE</div>
-      <div class="rewrite-text">${escapeHTML(data.rewritten_text)}</div>
-      <button class="copy-btn" id="copyRewrite">⊕ COPY</button>`;
-    resultsDiv.appendChild(rewriteBox);
-    document.getElementById('copyRewrite').addEventListener('click', () => {
-      navigator.clipboard.writeText(data.rewritten_text);
-      showToast('✓ COPIED TO CLIPBOARD');
-    });
-  }
 }
+
+
+function renderRewrite(text) {
+  const container = document.getElementById('rewriteContainer');
+
+  // hide if no rewrite
+  if (!text) {
+    container.classList.add('hidden');
+    container.innerHTML = '';
+    return;
+  }
+
+  // overwrite previous
+  container.classList.remove('hidden');
+  container.innerHTML = `
+    <div class="rewrite-box pop">
+      <div class="rewrite-label">✦ SUGGESTED REWRITE</div>
+      <div class="rewrite-text">${escapeHTML(text)}</div>
+      <button class="copy-btn" id="copyRewrite">⊕ COPY</button>
+    </div>
+  `;
+
+  document.getElementById('copyRewrite').onclick = () => {
+    navigator.clipboard.writeText(text);
+    showToast('✓ COPIED TO CLIPBOARD');
+  };
+}
+
 
 // ══════════════════════════════════════════════════════
 //  PREDICT — wired to the real HF Space backend
 // ══════════════════════════════════════════════════════
-const BACKEND = 'https://kanisk29-toxicity-backend.hf.space/predict';
+const BACKEND = 'https://kanisk29-toxicity-backend-2.hf.space/predict';
 
 async function predict() {
+  renderRewrite(null);
   const text = inputText.value.trim();
   if (!text) {
     inputText.focus();
@@ -554,6 +569,7 @@ async function predict() {
     stopLoader();
 
     renderResults(data);
+    renderRewrite(data.rewritten_text);
     renderHeatmap(text, data.results);
     updateStats(data.results);
     saveToHistory(text, data);
