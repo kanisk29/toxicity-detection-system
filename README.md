@@ -2,9 +2,11 @@
 
 End-to-end toxicity detection and correction system combining **Transformer-based classification with LLM-powered text rewriting**.
 
-Built a **multi-label RoBERTa classifier** with **per-label threshold optimization to improve Macro F1 (0.4397 → 0.6947)**, and integrated a **post-processing module that generates safe, non-toxic rewrites while preserving original intent**.
+Built a **multi-label RoBERTa classifier** with **per-label threshold optimization to improve Macro F1 (0.4397 to 0.6947)**, and integrated a **post-processing module that generates safe, non-toxic rewrites while preserving original intent**.
 
 Benchmarked multiple architectures including **BiLSTM, BiGRU, CNN, and Transformers**, selecting RoBERTa based on superior performance on contextual understanding and minority class detection.
+
+Optimized training using FP16 mixed precision to reduce GPU memory usage and improve training speed, and applied quantization to improve inference efficiency for deployment.
 
 Deployed as a real-time **production pipeline with API and frontend**, supporting scalable content moderation workflows.
 
