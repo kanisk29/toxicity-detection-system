@@ -97,6 +97,8 @@ setInterval(updateClock, 1000);
 // ══════════════════════════════════════════════════════
 const inputText = document.getElementById('inputText');
 const charCountEl = document.getElementById('charCount');
+const explainBtn = document.getElementById("explainBtn");
+const explanationSection = document.getElementById("explanationSection");
 inputText.addEventListener('input', () => {
   charCountEl.textContent = inputText.value.length;
 });
@@ -265,7 +267,6 @@ function renderHistory() {
       inputText.value = entry.text;
       charCountEl.textContent = entry.text.length;
       renderResults({ results: entry.results });
-      renderHeatmap(entry.text, entry.results);
       document.querySelector('.main-panel').scrollTop = 0;
       showToast('↩ LOADED FROM SCAN LOG');
     });
@@ -280,88 +281,6 @@ document.getElementById('clearBtn').addEventListener('click', () => {
   showToast('⊘ SCAN LOG PURGED');
 });
 
-
-// ══════════════════════════════════════════════════════
-//  WORD HEATMAP
-// ══════════════════════════════════════════════════════
-const TOXIC_WORDS = new Set([
-  'fuck','fucking','bitch','bastard','idiot',
-  'stupid','retard','faggot','kill','die',
-  'garbage','loser','ugly','scum','filth','pig','monster',
-  'racist','sexist','bigot','slur','nigga','nigger','slut',
-  'whore','nazi','curb stomp','stabbed','killed','swine',
-  'fuck','fucking','motherfucker','bitch','bastard',
-  'abuse','attack','threaten','bully','harass','rape'
-]);
-
-function renderHeatmap(text, results) {
-  const section   = document.getElementById('heatmapSection');
-  const container = document.getElementById('heatmap');
-
-  if (!section || !container) return;
-
-  section.style.display = 'block';
-  container.innerHTML = '';
-
-  // Safe handling of results
-  const values = Object.values(results || {});
-  const toxicScore = values.length
-    ? Math.max(...values.map(r => r.prediction === 1 ? r.confidence : 0))
-    : 0;
-
-  const words = text.split(/(\s+)/);
-
-  words.forEach((token, i) => {
-
-    // Preserve spaces
-    if (/^\s+$/.test(token)) {
-      container.appendChild(document.createTextNode(token));
-      return;
-    }
-
-    const clean = token.toLowerCase().replace(/[^a-z]/g, '');
-    const isToxic = TOXIC_WORDS.has(clean);
-
-    const span = document.createElement('span');
-    span.className = 'word';
-    span.textContent = token;
-
-    // ---------- FIXED HEAT LOGIC ----------
-    let heat = 0;
-
-    if (isToxic) {
-      heat = 0.85; // strong, consistent highlight
-    } else if (toxicScore > 0.75) {
-      // very subtle context effect (optional)
-      heat = 0.12;
-    }
-
-    // ---------- APPLY STYLES ----------
-    if (heat > 0) {
-      span.style.background = `rgba(255, 0, 80, ${heat * 0.35})`;
-      span.style.color = `rgba(255, ${180 - heat*100}, ${180 - heat*100}, 1)`;
-      span.style.padding = '2px 4px';
-      span.style.borderRadius = '3px';
-      span.title = isToxic
-        ? '⚠ Toxic word detected'
-        : 'Contextual risk';
-    } else {
-      span.style.color = 'rgba(220,228,245,0.85)';
-    }
-
-    // ---------- CLEAN ANIMATION ----------
-    span.style.opacity = '0';
-    span.style.transform = 'translateY(3px)';
-    span.style.transition = `opacity 0.25s ${i * 0.01}s, transform 0.25s ${i * 0.01}s`;
-
-    container.appendChild(span);
-
-    requestAnimationFrame(() => {
-      span.style.opacity = '1';
-      span.style.transform = 'translateY(0)';
-    });
-  });
-}
 
 // ══════════════════════════════════════════════════════
 //  LOADER ANIMATION
@@ -538,7 +457,14 @@ function renderRewrite(text) {
 const BACKEND = 'https://kanisk29-toxicity-backend-2.hf.space/predict';
 
 async function predict() {
-  renderRewrite(null);
+    renderRewrite(null);
+
+  explanationSection.innerHTML = "";
+  explanationSection.style.display = "none";
+  explanationSection.classList.add("hidden");
+
+  explainBtn.style.display = "none";
+
   const text = inputText.value.trim();
   if (!text) {
     inputText.focus();
@@ -553,7 +479,6 @@ async function predict() {
   }
 
   resultsDiv.innerHTML = '';
-  document.getElementById('heatmapSection').style.display = 'none';
   startLoader();
 
   try {
@@ -565,18 +490,36 @@ async function predict() {
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    const data = await response.json();
-    stopLoader();
+  const apiData = await response.json();
 
-    renderResults(data);
-    renderRewrite(data.rewritten_text);
-    renderHeatmap(text, data.results);
-    updateStats(data.results);
-    saveToHistory(text, data);
+  const data = {
+    results: apiData.predictions,
+    rewritten_text: apiData.rewrite,
+    explanations: apiData.explanations
+  };
 
-    const hasToxic = Object.values(data.results).some(r => r.prediction === 1);
-    showToast(hasToxic ? '⚠ TOXIC SIGNALS FOUND' : '✓ CONTENT CLEARED');
+  stopLoader();
 
+  renderResults(data);
+  renderRewrite(data.rewritten_text);
+  updateStats(data.results);
+  saveToHistory(text, data);
+
+  const hasToxic = Object.values(data.results).some(
+    r => r.prediction === 1
+  );
+
+  if (hasToxic) {
+    explainBtn.style.display = "flex";
+  } else {
+    explainBtn.style.display = "none";
+    explanationSection.style.display = "none";
+  }
+  showToast(
+  hasToxic
+    ? '⚠ TOXIC SIGNALS FOUND'
+    : '✓ CONTENT CLEARED'
+  );
   } catch (err) {
     console.error(err);
     stopLoader();
@@ -593,7 +536,91 @@ document.getElementById('analyzeBtn').addEventListener('click', predict);
 inputText.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') predict();
 });
+async function explainCurrentText() {
 
+  const text = inputText.value.trim();
+
+  if (!text) return;
+
+  explanationSection.style.display = "block";
+
+  explanationSection.innerHTML = `
+    <div class="result-item">
+      <div class="shap-loader"></div>
+      <div style="text-align:center">
+        Identifying toxic trigger words...
+      </div>
+    </div>
+  `;
+
+  try {
+
+    const response = await fetch(
+      "https://kanisk29-toxicity-backend-2.hf.space/explain",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ text })
+      }
+    );
+
+    const data = await response.json();
+
+    const explanations = data.explanations || {};
+
+    const toxicWords = new Set();
+Object.values(explanations).forEach(tokens => {
+  tokens.forEach(token => {
+
+    const word = token.token?.trim();
+
+    if (
+      word &&
+      word.length > 3 &&
+      /^[a-zA-Z]+$/.test(word)
+    ) {
+      toxicWords.add(word);
+    }
+
+  });
+});
+
+    let html = `
+      <div class="section-label" style="color:rgb(210,140,245)">
+        MOST INFLUENTIAL TOXIC WORDS
+      </div>
+
+      <div class="toxic-chip-container">
+    `;
+
+    toxicWords.forEach(word => {
+      html += `
+        <span class="toxic-chip">
+          ${escapeHTML(word)}
+        </span>
+      `;
+    });
+
+    html += `</div>`;
+
+    explanationSection.innerHTML = html;
+
+  } catch (err) {
+
+    explanationSection.innerHTML = `
+      <div class="error-msg">
+        Failed to load explanation.
+      </div>
+    `;
+  }
+}
+
+explainBtn.addEventListener(
+  "click",
+  explainCurrentText
+);
 
 // ══════════════════════════════════════════════════════
 //  TOAST

@@ -7,15 +7,36 @@ from slowapi.util import get_remote_address
 limiter = Limiter(key_func=get_remote_address)
 router = APIRouter()
 
+
 class TextRequest(BaseModel):
     text: str
 
+
 @router.post("/predict")
-@limiter.limit("60/minute") 
+@limiter.limit("60/minute")
 def predict(request: Request, req: TextRequest):
-    output = predict_text(req.text)
-    if isinstance(output,tuple):
-        results,rewritten_text = output
-    else:
-        results,rewritten_text = output,None
-    return {"results":results,"rewritten_text":rewritten_text}
+    """
+    Fast endpoint:
+    - Toxicity predictions
+    - Rewrite suggestion (if toxic)
+    - No SHAP explanations
+    """
+    return predict_text(
+        req.text,
+        with_explanation=False
+    )
+
+
+@router.post("/explain")
+@limiter.limit("20/minute")
+def explain(request: Request, req: TextRequest):
+    """
+    Slower endpoint:
+    - Toxicity predictions
+    - Rewrite suggestion
+    - SHAP explanations
+    """
+    return predict_text(
+        req.text,
+        with_explanation=True
+    )

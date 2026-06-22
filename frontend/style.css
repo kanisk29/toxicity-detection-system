@@ -35,6 +35,7 @@ html, body {
   overflow: hidden;
 }
 
+
 /* ── Canvas ───────────────────────────────────────── */
 #bg {
   position: fixed;
@@ -1101,4 +1102,171 @@ textarea:hover {
     /* reduce intensity */
     color: rgba(180, 170, 255, 0.6);
   }
+}
+.github-float {
+  position: fixed;
+  top: 50%;
+  right: 0;
+
+  transform: translateY(-50%);
+
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 16px 20px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(118, 93, 243, 0.96),
+    rgba(54, 17, 108, 0.96)
+  );
+
+  border-left: 1px solid rgba(168,85,247,0.45);
+  border-top: 1px solid rgba(168,85,247,0.25);
+  border-bottom: 1px solid rgba(168,85,247,0.25);
+
+  border-radius: 14px 0 0 14px;
+
+  text-decoration: none;
+
+  backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 0 25px rgba(168,85,247,0.22),
+    inset 0 0 25px rgba(168,85,247,0.04);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.github-float:hover {
+  transform:
+    translateY(-50%)
+    translateX(-6px);
+
+  border-left-color: rgba(168,85,247,0.9);
+
+  box-shadow:
+    0 0 40px rgba(168,85,247,0.4),
+    0 0 100px rgba(168,85,247,0.14);
+}
+
+.github-icon {
+  font-size: 18px;
+
+  color: #6effe0;
+
+  text-shadow:
+    0 0 10px rgba(168,85,247,1);
+}
+
+.github-text {
+  color: #ffe657;
+
+  font-family: var(--font-code);
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.18em;
+
+  white-space: nowrap;
+
+  text-transform: uppercase;
+}
+.creator-tag {
+  margin-top: 4px;
+
+  font-family: var(--font-code);
+
+  font-size: 9px;
+
+  letter-spacing: 0.22em;
+
+  color: rgba(255, 255, 255, 0.72);
+
+  text-shadow:
+    0 0 10px rgba(168,85,247,0.45);
+}
+
+/* MOBILE GITHUB BAR */
+@media (max-width: 768px) {
+
+  .github-float {
+    top: 38px;
+    left: 50%;
+    right: auto;
+
+    transform: translateX(-50%);
+
+    padding: 10px 16px;
+
+    border-radius: 999px;
+
+    border: 1px solid rgba(168,85,247,0.35);
+
+    gap: 8px;
+
+    z-index: 99999;
+
+    backdrop-filter: blur(14px);
+
+    box-shadow:
+      0 0 20px rgba(168,85,247,0.22),
+      0 0 40px rgba(168,85,247,0.08);
+  }
+
+  .github-float:hover {
+    transform: translateX(-50%);
+  }
+
+  .github-icon {
+    font-size: 14px;
+  }
+
+  .github-text {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+  }
+
+  /* prevent overlap with content */
+  .layout {
+    padding-top: 78px;
+  }
+}
+.shap-loader{
+  width:24px;
+  height:24px;
+  margin:0 auto 10px;
+  border:2px solid rgba(255,255,255,0.15);
+  border-top:2px solid #a855f7;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+
+.toxic-chip-container{
+  margin-top:12px;
+}
+
+.toxic-chip{
+  display:inline-block;
+  margin:6px;
+  padding:8px 14px;
+  border-radius:999px;
+  background:rgba(255,51,102,0.15);
+  border:1px solid rgba(255,51,102,0.4);
+  color:#ff5c8a;
+  font-weight:600;
+  font-size:13px;
 }
