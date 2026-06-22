@@ -1,8 +1,8 @@
 # Toxicity Detection System
 
-End-to-end toxicity detection and correction system combining **Transformer-based classification with LLM-powered text rewriting**.
+End-to-end toxicity detection and correction system combining **Transformer-based classification, SHAP-powered explainable AI, LLM-powered text rewriting**.
 
-Built a **multi-label RoBERTa classifier** with **per-label threshold optimization to improve Macro F1 (0.4397 to 0.6947)**, and integrated a **post-processing module that generates safe, non-toxic rewrites while preserving original intent**.
+Built a **multi-label RoBERTa classifier** with **per-label threshold optimization to improve Macro F1 (0.44 to 0.70)**, and integrated a **post-processing module that generates safe, non-toxic rewrites while preserving original intent**.
 
 Benchmarked multiple architectures including **BiLSTM, BiGRU, CNN, and Transformers**, selecting RoBERTa based on superior performance on contextual understanding and minority class detection.
 
@@ -10,6 +10,8 @@ Optimized training using FP16 mixed precision to reduce GPU memory usage and imp
 
 Deployed as a real-time **production pipeline with API and frontend**, supporting scalable content moderation workflows.
 
+
+End-to-end toxicity detection and correction system combining Transformer-based multi-label classification, 
 ## Live Demo
 
 https://toxicity-detector-by-kanisk.netlify.app  
@@ -154,34 +156,22 @@ The system includes a post-processing rewrite module that converts toxic inputs 
 
 ---
 
-## API Usage
+## Explainable AI (XAI)
 
-### Endpoint
+To improve model transparency and enable interpretable moderation decisions, the system integrates SHAP (SHapley Additive exPlanations) for token-level attribution analysis.
 
-POST /predict
+### Why Explainability?
 
-### Request
+Content moderation systems often operate as black boxes, making it difficult to understand why specific comments are flagged.
 
-```json
-{
-  "text": "Your input sentence"
-}
-```
-### Response [Example]
+SHAP explanations provide:
 
-```json
-{
-  "toxic": 0.82,
-  "severe_toxic": 0.12,
-  "obscene": 0.76,
-  "threat": 0.05,
-  "insult": 0.64,
-  "identity_hate": 0.02
-  },
-  "rewritten_text": "Rewritten Comment Suggestion: ..."
-}
-```
+- Transparency into model decisions
+- Token-level attribution scores
+- Easier debugging of false positives and false negatives
+- Increased trust in moderation outputs
 
+The explainability pipeline is exposed through a dedicated `/explain` endpoint.
 ## Problem Statement
 
 Given a user comment, classify it into one or more of the following categories:
